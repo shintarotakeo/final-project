@@ -1,0 +1,33 @@
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import mpl_finance as mpf
+import codecs as cd
+
+def DataRead():
+    with cd.open("./dataset/jpstock/1570_2018.csv", "r", "Shift-JIS", "ignore") as csv_file:
+        df = pd.read_csv(csv_file, quotechar='"', header=1, index_col=0)    # convert data frame type by index_col
+        
+    df_ = df.copy()
+    df_.index = mdates.date2num(df_.index)
+    data = df_.reset_index().values
+
+    fig = plt.figure(figsize=(12, 4))
+    ax = fig.add_subplot(1, 1, 1)
+
+    mpf.candlestick_ohlc(ax, data, width=2, alpha=1.0, colorup='r', colordown='b')
+    ax.plot(df.index, df['close'].rolling(5).mean(),color='g',label="Moving Ave(5)")
+    ax.plot(df.index, df['close'].rolling(25).mean(),color='m',label="Moving Ave(25)")
+    ax.plot(df.index, df['close'].rolling(50).mean(),color='r',label="Moving Ave(50)")
+    plt.scatter(x, y, s=100, marker="v",color='k')
+
+    ax.grid()
+
+    locator = mdates.AutoDateLocator()
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(locator))
+    plt.legend()
+    plt.show()
+    
+    
